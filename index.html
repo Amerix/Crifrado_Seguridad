@@ -123,39 +123,107 @@ Sistema de cifrado basado en ASCII — Americo Ismael Calzada Gonzalez
 </div>
 
 <script>
+/**
+ * =========================================================
+ * MOTOR DE CIFRADO — CipherLab
+ * Implementa los algoritmos César y Atbash usando ASCII
+ * =========================================================
+ */
+
+/**
+ * Aplica el cifrado César a un texto.
+ *
+ * El cifrado César desplaza cada carácter del alfabeto
+ * un número fijo de posiciones.
+ *
+ * @param {string} texto - Cadena que se desea cifrar o descifrar
+ * @param {string} alfabeto - Conjunto de caracteres permitido (ASCII)
+ * @param {number} shift - Número de posiciones a desplazar
+ * @param {boolean} descifrar - Si es true, invierte el desplazamiento
+ * @returns {string} Texto transformado
+ *
+ * Consideraciones de seguridad:
+ * - No ejecuta código dinámico (no eval)
+ * - Respeta caracteres fuera del alfabeto
+ * - Maneja desplazamientos negativos de forma segura
+ */
+    
 function cesar(texto, alfabeto, shift, descifrar=false) {
-    let res = "";
-    let n = alfabeto.length;
+    let res = "";              // Resultado acumulado
+    let n = alfabeto.length;   // Tamaño del alfabeto
+
+    // Si se selecciona descifrar, se invierte el desplazamiento
     if (descifrar) shift = -shift;
 
+    // Recorre cada carácter del texto de entrada
     for (let c of texto) {
-        let i = alfabeto.indexOf(c);
+        let i = alfabeto.indexOf(c); // Busca la posición del carácter
+
+        // Si el carácter no está en el alfabeto, se deja intacto
         if (i === -1) {
             res += c;
         } else {
+            // Cálculo modular seguro para evitar índices negativos
             let ni = (i + shift % n + n) % n;
             res += alfabeto[ni];
         }
     }
-    return res;
+
+    return res; // Devuelve el texto procesado
 }
 
+/**
+ * Aplica el cifrado Atbash a un texto.
+ *
+ * Atbash es un cifrado por sustitución donde:
+ * - El primer carácter del alfabeto se intercambia con el último
+ * - El segundo con el penúltimo, etc.
+ *
+ * NOTA: En Atbash cifrar y descifrar es la misma operación.
+ *
+ * @param {string} texto - Texto a transformar
+ * @param {string} alfabeto - Conjunto de caracteres ASCII
+ * @returns {string} Texto transformado
+ *
+ * Seguridad:
+ * - No modifica caracteres fuera del alfabeto
+ * - No usa ejecución dinámica
+ */
 function atbash(texto, alfabeto) {
     let res = "";
     let n = alfabeto.length;
 
+    // Recorre cada carácter del texto
     for (let c of texto) {
         let i = alfabeto.indexOf(c);
+
+        // Si el carácter no pertenece al alfabeto, se conserva
         if (i === -1) {
             res += c;
         } else {
+            // Sustitución espejo del alfabeto
             res += alfabeto[n - 1 - i];
         }
     }
+
     return res;
 }
 
+/**
+ * Función principal que controla la interfaz.
+ *
+ * Se encarga de:
+ *  - Leer entradas del usuario
+ *  - Determinar el método seleccionado
+ *  - Ejecutar el algoritmo correspondiente
+ *  - Mostrar el resultado
+ *
+ * Validaciones:
+ *  - Convierte el desplazamiento a número
+ *  - Evita fallos por campos vacíos
+ */
 function procesar() {
+    // Obtiene valores desde la interfaz
     const texto = document.getElementById("texto").value;
     const alfabeto = document.getElementById("alfabeto").value;
     const metodo = document.getElementById("metodo").value;
@@ -164,14 +232,23 @@ function procesar() {
 
     let resultado = "";
 
+    // Selección del algoritmo según el usuario
     if (metodo === "cesar") {
-        resultado = cesar(texto, alfabeto, shift, operacion==="descifrar");
+        resultado = cesar(
+            texto,
+            alfabeto,
+            shift,
+            operacion === "descifrar"
+        );
     } else {
+        // En Atbash cifrar y descifrar es equivalente
         resultado = atbash(texto, alfabeto);
     }
 
+    // Muestra el resultado en la interfaz
     document.getElementById("resultado").value = resultado;
 }
+
 </script>
 
 </body>
