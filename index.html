@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Cifrador César y Atbash</title>
+
 <style>
+
 body {
     font-family: 'Segoe UI', monospace;
     background: radial-gradient(circle at top, #0f172a, #020617);
@@ -21,15 +23,12 @@ body {
     padding: 28px;
     box-shadow: 0 0 25px rgba(37, 99, 235, 0.35);
     border: 1px solid rgba(59, 130, 246, 0.25);
-    animation: fadeIn 0.8s ease;
 }
 
 h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #60a5fa;
-    letter-spacing: 1px;
-    text-shadow: 0 0 12px rgba(96,165,250,0.6);
 }
 
 label {
@@ -45,15 +44,7 @@ textarea, input, select {
     border: 1px solid #334155;
     background: #020617;
     color: #e2e8f0;
-    transition: all 0.25s ease;
     font-family: monospace;
-}
-
-textarea:focus, input:focus, select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 10px rgba(59,130,246,0.5);
-    transform: scale(1.01);
 }
 
 button {
@@ -64,33 +55,22 @@ button {
     background: linear-gradient(135deg, #2563eb, #06b6d4);
     color: white;
     font-weight: bold;
-    letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 0 15px rgba(37,99,235,0.4);
-}
-
-button:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 0 25px rgba(6,182,212,0.7);
 }
 
 h3 {
     color: #22c55e;
-    text-shadow: 0 0 8px rgba(34,197,94,0.6);
 }
 
-/* Animación suave */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 </style>
 </head>
+
 <body>
 
 <div class="container">
+
 <h2>🔐 CipherLab — César & Atbash</h2>
+
 <p style="text-align:center; font-size:13px; color:#94a3b8;">
 Sistema de cifrado basado en ASCII — Americo Ismael Calzada Gonzalez
 </p>
@@ -120,88 +100,64 @@ Sistema de cifrado basado en ASCII — Americo Ismael Calzada Gonzalez
 
 <h3>Resultado:</h3>
 <textarea id="resultado" readonly></textarea>
+
+<h3>Detección automática de desplazamiento:</h3>
+<textarea id="autoResultados" readonly style="height:220px;"></textarea>
+
 </div>
 
 <script>
-/**
- * =========================================================
- * MOTOR DE CIFRADO — CipherLab
- * Implementa los algoritmos César y Atbash usando ASCII
- * =========================================================
- */
 
-/**
- * Aplica el cifrado César a un texto.
- *
- * El cifrado César desplaza cada carácter del alfabeto
- * un número fijo de posiciones.
- *
- * @param {string} texto - Cadena que se desea cifrar o descifrar
- * @param {string} alfabeto - Conjunto de caracteres permitido (ASCII)
- * @param {number} shift - Número de posiciones a desplazar
- * @param {boolean} descifrar - Si es true, invierte el desplazamiento
- * @returns {string} Texto transformado
- *
- * Consideraciones de seguridad:
- * - No ejecuta código dinámico (no eval)
- * - Respeta caracteres fuera del alfabeto
- * - Maneja desplazamientos negativos de forma segura
- */
-    
+/*
+=========================================================
+MOTOR DE CIFRADO — CipherLab
+Implementa César y Atbash usando ASCII
+=========================================================
+*/
+
 function cesar(texto, alfabeto, shift, descifrar=false) {
-    let res = "";              // Resultado acumulado
-    let n = alfabeto.length;   // Tamaño del alfabeto
 
-    // Si se selecciona descifrar, se invierte el desplazamiento
+    let res = "";
+    let n = alfabeto.length;
+
     if (descifrar) shift = -shift;
 
-    // Recorre cada carácter del texto de entrada
     for (let c of texto) {
-        let i = alfabeto.indexOf(c); // Busca la posición del carácter
 
-        // Si el carácter no está en el alfabeto, se deja intacto
+        let i = alfabeto.indexOf(c);
+
         if (i === -1) {
             res += c;
-        } else {
-            // Cálculo modular seguro para evitar índices negativos
+        }
+        else {
             let ni = (i + shift % n + n) % n;
             res += alfabeto[ni];
         }
     }
 
-    return res; // Devuelve el texto procesado
+    return res;
 }
 
-/**
- * Aplica el cifrado Atbash a un texto.
- *
- * Atbash es un cifrado por sustitución donde:
- * - El primer carácter del alfabeto se intercambia con el último
- * - El segundo con el penúltimo, etc.
- *
- * NOTA: En Atbash cifrar y descifrar es la misma operación.
- *
- * @param {string} texto - Texto a transformar
- * @param {string} alfabeto - Conjunto de caracteres ASCII
- * @returns {string} Texto transformado
- *
- * Seguridad:
- * - No modifica caracteres fuera del alfabeto
- * - No usa ejecución dinámica
- */
+
+/*
+=========================================================
+CIFRADO ATBASH
+=========================================================
+*/
+
 function atbash(texto, alfabeto) {
+
     let res = "";
     let n = alfabeto.length;
 
-    // Recorre cada carácter del texto
     for (let c of texto) {
+
         let i = alfabeto.indexOf(c);
 
-        // Si el carácter no pertenece al alfabeto, se conserva
         if (i === -1) {
             res += c;
-        } else {
-            // Sustitución espejo del alfabeto
+        }
+        else {
             res += alfabeto[n - 1 - i];
         }
     }
@@ -209,21 +165,37 @@ function atbash(texto, alfabeto) {
     return res;
 }
 
-/**
- * Función principal que controla la interfaz.
- *
- * Se encarga de:
- *  - Leer entradas del usuario
- *  - Determinar el método seleccionado
- *  - Ejecutar el algoritmo correspondiente
- *  - Mostrar el resultado
- *
- * Validaciones:
- *  - Convierte el desplazamiento a número
- *  - Evita fallos por campos vacíos
- */
+
+/*
+=========================================================
+FUERZA BRUTA PARA DETECTAR SHIFT EN CÉSAR
+=========================================================
+*/
+
+function detectarCesar(texto, alfabeto) {
+
+    let resultados = "";
+    let n = alfabeto.length;
+
+    for (let s = 0; s < n; s++) {
+
+        let intento = cesar(texto, alfabeto, s, true);
+
+        resultados += "Shift " + s + " -> " + intento + "\n";
+    }
+
+    document.getElementById("autoResultados").value = resultados;
+}
+
+
+/*
+=========================================================
+CONTROLADOR PRINCIPAL
+=========================================================
+*/
+
 function procesar() {
-    // Obtiene valores desde la interfaz
+
     const texto = document.getElementById("texto").value;
     const alfabeto = document.getElementById("alfabeto").value;
     const metodo = document.getElementById("metodo").value;
@@ -232,21 +204,28 @@ function procesar() {
 
     let resultado = "";
 
-    // Selección del algoritmo según el usuario
     if (metodo === "cesar") {
+
         resultado = cesar(
             texto,
             alfabeto,
             shift,
             operacion === "descifrar"
         );
-    } else {
-        // En Atbash cifrar y descifrar es equivalente
+
+    }
+    else {
+
         resultado = atbash(texto, alfabeto);
+
     }
 
-    // Muestra el resultado en la interfaz
     document.getElementById("resultado").value = resultado;
+
+    if (metodo === "cesar") {
+        detectarCesar(texto, alfabeto);
+    }
+
 }
 
 </script>
